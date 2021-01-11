@@ -1,0 +1,47 @@
+﻿<Window x:Class="ComponentManagementSystem_1._0.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ComponentManagementSystem_1._0"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/ComponentManagementSystem-1.0;component/css/Styles.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="90*"/>
+            <RowDefinition Height="5*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80*"></ColumnDefinition>
+            <ColumnDefinition Width="20*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="0" Grid.Column="0">
+            <DataGrid x:Name="mainDataGrid" Style="{StaticResource DataGridStyle}"  MouseDoubleClick="dataGrid_dblClick" />
+        </ScrollViewer>
+        <ScrollViewer  Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Visible">
+            <Grid x:Name="processGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </ScrollViewer>
+        <StackPanel  Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
+            <Button Content="Upload Processes file" Click="btnUploadProcesses_Click"  Background="Orange" 
+             Padding="5"  Margin="5,5,5,5"  Cursor="Hand"></Button>
+            <Button Content="Upload Components file" Click="btnUploadComponents_Click"  Background="orange" Padding="5" Margin="5,5,5,5"  Cursor="Hand"></Button>
+            <Button Content="Generate Excel"  Click="btnGenerateExcel_Click" Background="#FFA0FCA0" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <TextBlock Text="" x:Name="txtError" Foreground="Red" Margin="5,5,5,10"></TextBlock>
+        </StackPanel>
+
+    </Grid>
+
+</Window>
