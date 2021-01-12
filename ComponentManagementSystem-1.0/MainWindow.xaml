@@ -23,9 +23,9 @@
             <ColumnDefinition Width="20*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <ScrollViewer Grid.Row="0" Grid.Column="0">
-            <DataGrid x:Name="mainDataGrid" Style="{StaticResource DataGridStyle}"  MouseDoubleClick="dataGrid_dblClick" />
+            <DataGrid x:Name="mainDataGrid" Style="{StaticResource DataGridStyle}"  MouseLeftButtonUp="mainDataGrid_MouseLeftButtonUp"  />
         </ScrollViewer>
-        <ScrollViewer  Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer  Grid.Row="0" Grid.Column="1" VerticalScrollBarVisibility="Visible">
             <Grid x:Name="processGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
@@ -34,11 +34,14 @@
                 </Grid.ColumnDefinitions>
             </Grid>
         </ScrollViewer>
-        <StackPanel  Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
-            <Button Content="Upload Processes file" Click="btnUploadProcesses_Click"  Background="Orange" 
+        <StackPanel  Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <Button Content="Open Process File" Click="btnUploadProcesses_Click"  Background="Orange" 
              Padding="5"  Margin="5,5,5,5"  Cursor="Hand"></Button>
-            <Button Content="Upload Components file" Click="btnUploadComponents_Click"  Background="orange" Padding="5" Margin="5,5,5,5"  Cursor="Hand"></Button>
-            <Button Content="Generate Excel"  Click="btnGenerateExcel_Click" Background="#FFA0FCA0" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <Button Content="Open Data File" Click="btnUploadComponents_Click"  Background="orange" Padding="5" Margin="5,5,5,5"  Cursor="Hand"></Button>
+            <Button Content="Generate"  Click="btnGenerateExcel_Click" Background="#FFA0FCA0" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <Button Content="Add Mode"  Click="btnAddMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <Button Content="Update Mode"  Click="btnUpdateMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <Button Content="Delete Mode"  Click="btnDeleteMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
             <TextBlock Text="" x:Name="txtError" Foreground="Red" Margin="5,5,5,10"></TextBlock>
         </StackPanel>
 
