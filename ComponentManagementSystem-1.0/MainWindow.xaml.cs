@@ -55,9 +55,18 @@ namespace ComponentManagementSystem_1._0
             // This is used for making a process file under this folder.
             _DirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\" + _ContextName;
             _FilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\" + _ContextName + "\\data.json";
-            CheckProcessFileExists();
+            if (CheckProcessFileExists())
+            {
+                // if process file exists, we will take file name and then draw buttons accordingly.
+                string jsonString = File.ReadAllText(_FilePath);
+                FileStore fs = JsonConvert.DeserializeObject<FileStore>(jsonString);
+                if (fs._ProcessFile != null && File.Exists(fs._ProcessFile))
+                {
+                    _ProcessFileName = fs._ProcessFile;
+                    PopulateProcessButtons();
+                }
+            }
         }
-
 
         private void btnGenerateExcel_Click(object sender, RoutedEventArgs e)
         {
@@ -76,7 +85,10 @@ namespace ComponentManagementSystem_1._0
                 return;
             }
             saveFileName = dlg.FileName;
-            
+            saveAsExcel(saveFileName);
+        }
+        void saveAsExcel(string saveFileName)
+        {
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFFont myFont = (XSSFFont)workbook.CreateFont();
             myFont.FontHeightInPoints = 11;
@@ -107,7 +119,7 @@ namespace ComponentManagementSystem_1._0
                 IRow currentRow = Sheet.CreateRow(rowIndex++);
                 for (int j = 0; j < _DataTable.Columns.Count; j++)
                 {
-                    if (_DataTable.Rows[i][j].GetType() != DBNull.Value.GetType() && _DataTable.Rows[i][j].ToString()!="")
+                    if (_DataTable.Rows[i][j].GetType() != DBNull.Value.GetType() && _DataTable.Rows[i][j].ToString() != "")
                     {
                         if (_DataTable.Rows[i][j].ToString().All(char.IsDigit))
                         {
@@ -140,7 +152,6 @@ namespace ComponentManagementSystem_1._0
             {
                 workbook.Write(fileData);
             }
-
         }
         private void CreateCell(IRow CurrentRow, int CellIndex, string Value, XSSFCellStyle Style)
         {
@@ -155,6 +166,22 @@ namespace ComponentManagementSystem_1._0
                 Cell.SetCellValue(Value);
             }
             Cell.CellStyle = Style;
+        }
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                saveAsExcel(_DataFileName);
+                txtError.Text = "Saved";
+            }
+            catch(NullReferenceException nre)
+            {
+                txtError.Text = "Error : Not Saved " + nre;
+            }
+            catch(Exception ex)
+            {
+                txtError.Text = "Exception : Not Saved" + ex;
+            }
         }
 
         private void dataGrid_dblClick(object sender, MouseButtonEventArgs e)
@@ -175,7 +202,7 @@ namespace ComponentManagementSystem_1._0
                 txtError.Text = "Error dbl Click : " + ex.Message;
             }
         }
-        private void CheckProcessFileExists()
+        private bool CheckProcessFileExists()
         {
             // Checking if directory exists, if not, we create a directory
             if (!Directory.Exists(_DirectoryPath))
@@ -183,15 +210,9 @@ namespace ComponentManagementSystem_1._0
                 System.Diagnostics.Trace.WriteLine(Directory.CreateDirectory(_DirectoryPath));
             }
             // if the process file not exists in current directory we will return from this function
-            if (!File.Exists(_FilePath)) return;
-            // if process file exists, we will take file name and then draw buttons accordingly.
-            string jsonString = File.ReadAllText(_FilePath);
-            FileStore fs = JsonConvert.DeserializeObject<FileStore>(jsonString);
-            if (fs._ProcessFile != null && File.Exists(fs._ProcessFile))
-            {
-                _ProcessFileName = fs._ProcessFile;
-                PopulateProcessButtons();
-            }
+            if (!File.Exists(_FilePath)) return false;
+            return true;
+            
         }
         private void btnUploadProcesses_Click(object sender, RoutedEventArgs e)
         {
@@ -292,14 +313,19 @@ namespace ComponentManagementSystem_1._0
             }
 
             _DataFileName = dlg.FileName;
-            
+            SetTitleBarValues(dlg.SafeFileName);
             PopulateDataGrid();
+        }
+        private void SetTitleBarValues(string filename)
+        {
+            txtFileName.Text = filename;
+            txtMode.Text = "Add Mode";
         }
         private void PopulateDataGrid()
         {
             // this process make list of _Rows by taking data from compoent excel file
-            try
-            {
+            //try
+            //{
                 IWorkbook workbook2 = null;
                 FileStream fileStream2 = new FileStream(_DataFileName, FileMode.Open, FileAccess.Read);
                 if (_DataFileName.IndexOf(".xlsx") > 0)
@@ -313,9 +339,10 @@ namespace ComponentManagementSystem_1._0
                 ISheet sheet2 = workbook2.GetSheetAt(0);
                 if (sheet2 != null)
                 {
-                    IRow firstRow = sheet2.GetRow(1);
+                    IRow firstRow = sheet2.GetRow(0);
                     _Columns = new List<string>();
                     _Rows = new List<List<String>>();
+                    System.Diagnostics.Trace.WriteLine("hi");
                     _Columns.Add(firstRow.GetCell(0).StringCellValue);
                     _Columns.Add(firstRow.GetCell(1).StringCellValue);
                     _Columns.Add(firstRow.GetCell(2).StringCellValue);
@@ -326,24 +353,47 @@ namespace ComponentManagementSystem_1._0
                         _Columns.Add("P" + i);
                     }
                     int rowCount = sheet2.LastRowNum;
-                    for (int i = 2; i <= rowCount; i++)
+                    for (int i = 1; i <= rowCount; i++)
                     {
                         IRow currRow = sheet2.GetRow(i);
                         List<string> row = new List<String>();
+                        //System.Diagnostics.Trace.WriteLine("First Cell" + currRow.GetCell(0));
+                        //System.Diagnostics.Trace.WriteLine("First Cell" + currRow.GetCell(1));
+                        //System.Diagnostics.Trace.WriteLine("First Cell" + currRow.GetCell(2));
+                        //System.Diagnostics.Trace.WriteLine("First Cell" + currRow.GetCell(3));
                         row.Add(currRow.GetCell(0).NumericCellValue.ToString());
                         row.Add(currRow.GetCell(1).NumericCellValue.ToString());
                         row.Add(currRow.GetCell(2).StringCellValue);
                         row.Add(currRow.GetCell(3).NumericCellValue.ToString());
+
+                        int j = 4;
+                        while(currRow.GetCell(j)!=null && currRow.GetCell(j).CellType!=CellType.Blank && currRow.GetCell(j).ToString().Trim()!="")
+                        {
+                            System.Diagnostics.Trace.WriteLine(i+" "+j);
+                            row.Add(currRow.GetCell(j).RichStringCellValue.ToString());
+                            j++;
+                        }
+                        //System.Diagnostics.Trace.Write("first");
+                        //System.Diagnostics.Trace.WriteLine(currRow.GetCell(10) == null);
+                        //System.Diagnostics.Trace.Write("second");
+                        //System.Diagnostics.Trace.WriteLine(currRow.GetCell(10).CellType==CellType.Blank);
+                        //System.Diagnostics.Trace.Write("third");
+                        //System.Diagnostics.Trace.WriteLine(currRow.GetCell(10).ToString().Trim()=="");
+
                         _Rows.Add(row);
                     }
                     //mainDataGrid.Loaded += SetMinWidths;
                     MakeDataTable();
                     SetWidthOfElements();
                 }
-            }catch(Exception ex)
-            {
-                txtError.Text = "File is of wrong format, please select correct format file." + ex.Message;
-            }
+            //}catch(NullReferenceException ne)
+            //{
+            //    txtError.Text = "Some unknown error, report problem " + ne;
+            //}
+            //catch(Exception ex)
+            //{
+            //    txtError.Text = "File is of wrong format, please select correct format file." + ex.Message;
+            //}
         }
         public void MakeDataTable()
         {
@@ -358,11 +408,11 @@ namespace ComponentManagementSystem_1._0
             for (int i = 0; i < _Rows.Count; i++)
             {
                 _DataRow = _DataTable.NewRow();
-                _ProcessMap.Add(_Rows[i][2], 4);
                 for (int j = 0; j < _Rows[i].Count; j++)
                 {
                     _DataRow[_Columns[j]] = _Rows[i][j];
                 }
+                _ProcessMap.Add(_Rows[i][2], _Rows[i].Count);
                 _DataTable.Rows.Add(_DataRow);
             }
             mainDataGrid.Style = FindResource("DataGridStyle") as Style;
@@ -381,11 +431,6 @@ namespace ComponentManagementSystem_1._0
             mainDataGrid.Columns[0].Width = 35;
             mainDataGrid.Columns[1].Width = 35;
             mainDataGrid.Columns[3].Width = 35;
-        }
-        public class FileStore
-        {
-            /// This class used for storing process file name as a json
-            public string _ProcessFile { set; get; }
         }
 
         private void btnProcess_Click(object sender, RoutedEventArgs e)
@@ -407,7 +452,7 @@ namespace ComponentManagementSystem_1._0
             }
             else if (_CurrentMode == "UPDATE")
             {
-                
+                // Bug : when I update a row cell, then click on next row cell, it will show current row cell only, fix it
                 DataRowView dataRow = mainDataGrid.Items.GetItemAt(_CurrentRowIndex) as DataRowView;
                 dataRow.BeginEdit();
                 dataRow[_CurrentColumnIndex] = b.Content.ToString();
@@ -422,6 +467,7 @@ namespace ComponentManagementSystem_1._0
         {
             // This function check that, is any cell from dataGrid is selected or not.
             // As firstly we have to select a cell from data grid, then current row value will change from -1 to some other value
+            System.Diagnostics.Trace.WriteLine(currentRow+" "+currentColumn);
             if (currentRow == -1 || currentRow > _Processes.Count())
             {
                 txtError.Text = "Error : Not a valid row";
@@ -438,11 +484,13 @@ namespace ComponentManagementSystem_1._0
         private void btnAddMode_Click(object sender, RoutedEventArgs e)
         {
             _CurrentMode = "ADD";
+            txtMode.Text = "Add Mode";
         }
 
         private void btnUpdateMode_Click(object sender, RoutedEventArgs e)
         {
             _CurrentMode = "UPDATE";
+            txtMode.Text = "Edit Mode";
             ////mainDataGrid.CurrentCell = new DataGridCellInfo(mainDataGrid.Items[_CurrentRowIndex+1], mainDataGrid.Columns[_CurrentColumnIndex]);
             ////mainDataGrid.BeginEdit();
             //mainDataGrid.SelectedItem = mainDataGrid.Items[_CurrentRowIndex + 1];
@@ -453,6 +501,7 @@ namespace ComponentManagementSystem_1._0
         private void btnDeleteMode_Click(object sender, RoutedEventArgs e)
         {
             _CurrentMode = "DELETE";
+            txtMode.Text = "Delete Mode";
         }
 
         private void mainDataGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -476,9 +525,10 @@ namespace ComponentManagementSystem_1._0
                 {
                     _CurrentColumnIndex = mainDataGrid.CurrentCell.Column.DisplayIndex;
                 }
+                _CurrentRowIndex = mainDataGrid.SelectedIndex;
+
                 if (_CurrentMode == "ADD")
                 {
-                    _CurrentRowIndex = mainDataGrid.SelectedIndex;
                     cellValue = dataRow.Row.ItemArray[2].ToString();
                     _CurrentColumnIndex = _ProcessMap[cellValue];
                     System.Diagnostics.Trace.WriteLine(" Add Column Index " + _CurrentColumnIndex);
@@ -491,17 +541,17 @@ namespace ComponentManagementSystem_1._0
                 {
                     if (_CurrentColumnIndex < 4)
                     {
-                        txtError.Text = "Error Update : selected row is not process row";
+                        txtError.Text = "Error Update : selected row cannot be processed";
                         return;
                     }
-                    cellValue = dataRow.Row.ItemArray[_CurrentColumnIndex].ToString();
+                    //cellValue = dataRow.Row.ItemArray[_CurrentColumnIndex].ToString();
                     if (cellValue != null)
                     {
                         mainDataGrid.CurrentCell = new DataGridCellInfo(mainDataGrid.Items[_CurrentRowIndex], mainDataGrid.Columns[_CurrentColumnIndex]);
                         mainDataGrid.BeginEdit();
 
                     }
-                    System.Diagnostics.Trace.WriteLine("Update cell value " + cellValue);
+                    //System.Diagnostics.Trace.WriteLine("Update cell value " + cellValue);
                 }
                 else if (_CurrentMode == "DELETE")
                 {
@@ -511,7 +561,7 @@ namespace ComponentManagementSystem_1._0
                         return;
                     }
                     cellValue = dataRow.Row.ItemArray[_CurrentColumnIndex].ToString();
-                    System.Diagnostics.Trace.WriteLine("Inside Delete " + cellValue);
+                    //System.Diagnostics.Trace.WriteLine("Inside Delete " + cellValue);
                     MessageBoxResult result = MessageBox.Show("Confirm Delete : " + cellValue, "", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.OK)
                     {
@@ -537,8 +587,9 @@ namespace ComponentManagementSystem_1._0
                         {
                             _ProcessMap[_CurrentRowComponentValue]--;
                         }
-                        mainDataGrid.CurrentCell = new DataGridCellInfo(mainDataGrid.Items[_CurrentRowIndex], mainDataGrid.Columns[_CurrentColumnIndex]);
-                        mainDataGrid.BeginEdit();
+                        mainDataGrid.Items.Refresh();
+                        //mainDataGrid.CurrentCell = new DataGridCellInfo(mainDataGrid.Items[_CurrentRowIndex], mainDataGrid.Columns[_CurrentColumnIndex]);
+                        //mainDataGrid.BeginEdit();
                     }
                 }
                 //MessageBox.Show(_CurrentRowIndex+" "+_CurrentColumnIndex);
@@ -560,5 +611,11 @@ namespace ComponentManagementSystem_1._0
                 txtError.Text = "Error Selected Cell Changed : " + ex.Message;
             }
         }
+        public class FileStore
+        {
+            /// This class used for storing process file name as a json
+            public string _ProcessFile { set; get; }
+        }
+
     }
 }

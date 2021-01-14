@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ComponentManagementSystem_1._0"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#FFDAD7D7">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -15,17 +15,25 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="90*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="92*"/>
             <RowDefinition Height="5*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="80*"></ColumnDefinition>
             <ColumnDefinition Width="20*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <ScrollViewer Grid.Row="0" Grid.Column="0">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" >
+            <Label FontSize="12" Content="File Name : "></Label>
+            <TextBlock x:Name="txtFileName" Margin="2" Background="AliceBlue"></TextBlock>
+            <Label FontSize="12" Content=" | "></Label>
+            <Label FontSize="12" Content="Mode : "></Label>
+            <TextBlock x:Name="txtMode" Margin="2" Background="AliceBlue" ></TextBlock>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Grid.Column="0">
             <DataGrid x:Name="mainDataGrid" Style="{StaticResource DataGridStyle}"  MouseLeftButtonUp="mainDataGrid_MouseLeftButtonUp"  />
         </ScrollViewer>
-        <ScrollViewer  Grid.Row="0" Grid.Column="1" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer  Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Visible">
             <Grid x:Name="processGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
@@ -34,15 +42,17 @@
                 </Grid.ColumnDefinitions>
             </Grid>
         </ScrollViewer>
-        <StackPanel  Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+        <StackPanel  Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <Button Content="Open Process File" Click="btnUploadProcesses_Click"  Background="Orange" 
              Padding="5"  Margin="5,5,5,5"  Cursor="Hand"></Button>
             <Button Content="Open Data File" Click="btnUploadComponents_Click"  Background="orange" Padding="5" Margin="5,5,5,5"  Cursor="Hand"></Button>
             <Button Content="Generate"  Click="btnGenerateExcel_Click" Background="#FFA0FCA0" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <Button Content="Save"  Click="btnSave_Click" Background="#FFA0FCA0" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
             <Button Content="Add Mode"  Click="btnAddMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
-            <Button Content="Update Mode"  Click="btnUpdateMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
+            <Button Content="Edit Mode"  Click="btnUpdateMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
             <Button Content="Delete Mode"  Click="btnDeleteMode_Click" Background="#FFDFDFDF" Margin="5,5,5,5"  Padding="5" Cursor="Hand" />
             <TextBlock Text="" x:Name="txtError" Foreground="Red" Margin="5,5,5,10"></TextBlock>
+            <TextBlock Text="" x:Name="txtSuccess" Foreground="Green" Margin="5,5,5,10"></TextBlock>
         </StackPanel>
 
     </Grid>
